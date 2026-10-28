@@ -571,8 +571,9 @@ pnpm package:release
 
 ### 触发方式
 
-- **Pull Request / 主分支 push**：完整测试，不发布。
-- **推送 `v*` tag**：按 tag 版本构建并创建/更新 GitHub Release。
+- **Pull Request**：完整测试，不发布。
+- **主分支 push**：完整测试通过后自动 bump `patch` 版本、提交版本变更、创建并推送 tag，然后构建并发布。
+- **推送 `v*` tag**：按 tag 版本构建并创建/更新 GitHub Release，不再递增版本。
 - **手动运行 Test and Release Windows**：
   1. 选择 `patch` / `minor` / `major`；
   2. 自动更新版本号；

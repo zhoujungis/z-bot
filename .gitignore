@@ -1,0 +1,14 @@
+node_modules/
+out/
+dist/
+release/
+coverage/
+playwright-report/
+test-results/
+*.log
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+.commandcode/

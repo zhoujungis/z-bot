@@ -1,0 +1,95 @@
+{
+  "name": "@zbot/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Z Bot - local-first personal AI assistant",
+  "author": "Z Bot",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package:win": "electron-builder --win portable",
+    "package:nsis": "electron-builder --win nsis",
+    "package:release": "electron-builder --win portable msi"
+  },
+  "build": {
+    "appId": "com.zbot.desktop",
+    "productName": "Z Bot",
+    "npmRebuild": false,
+    "asar": true,
+    "directories": {
+      "output": "../../release",
+      "buildResources": "resources"
+    },
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "resources",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        },
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "msi",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "resources/icon.ico",
+      "artifactName": "Z-Bot-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Z-Bot-${version}-Portable.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Z-Bot-${version}-Setup.${ext}"
+    },
+    "msi": {
+      "artifactName": "Z-Bot-${version}-${arch}.${ext}"
+    }
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.89",
+    "@ai-sdk/google": "^4.0.106",
+    "@ai-sdk/openai": "^4.0.103",
+    "@ai-sdk/openai-compatible": "^3.0.79",
+    "@mozilla/readability": "^0.6.0",
+    "@radix-ui/react-dialog": "^1.3.1",
+    "@radix-ui/react-switch": "^1.4.1",
+    "@radix-ui/react-tabs": "^1.2.1",
+    "@radix-ui/react-tooltip": "^1.4.1",
+    "@zbot/bot-core": "workspace:*",
+    "@zbot/database": "workspace:*",
+    "@zbot/memory": "workspace:*",
+    "@zbot/model": "workspace:*",
+    "@zbot/shared": "workspace:*",
+    "@zbot/tools": "workspace:*",
+    "ai": "^7.0.154",
+    "fast-glob": "^3.3.3",
+    "jsdom": "^30.1.3",
+    "lucide-react": "^1.61.0",
+    "pino": "^10.4.0",
+    "playwright": "^1.64.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.18.4",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.0.0",
+    "zustand": "^5.0.16"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@zbot/tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "@zbot/database": "workspace:*",
+    "@zbot/memory": "workspace:*",
+    "@zbot/model": "workspace:*",
+    "@zbot/shared": "workspace:*",
+    "fast-glob": "^3.3.3",
+    "jsdom": "^30.1.3",
+    "playwright": "^1.64.1",
+    "zod": "^4.0.0"
+  }
+}

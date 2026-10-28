@@ -1,0 +1,196 @@
+name: Test and Release Windows
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Semantic version bump'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zbot-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Full test suite
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Cache Electron artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\electron\Cache
+            ~\AppData\Local\electron-builder\Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            electron-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit and integration tests
+        run: pnpm test
+
+      - name: Electron end-to-end tests
+        run: pnpm test:e2e
+
+      - name: Upload E2E diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-diagnostics
+          path: |
+            test-results
+            playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+
+  release:
+    name: Build and publish Windows release
+    needs: test
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref_name == github.event.repository.default_branch) }}
+    runs-on: windows-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      CI: 'true'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Cache Electron artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\electron\Cache
+            ~\AppData\Local\electron-builder\Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            electron-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Resolve release version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "push") {
+            node .github/scripts/bump-version.mjs --tag "${{ github.ref_name }}"
+          } else {
+            node .github/scripts/bump-version.mjs --bump "${{ inputs.bump }}"
+          }
+
+      - name: Commit version and create tag
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json apps/desktop/package.json
+          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          git push origin "HEAD:refs/heads/${{ github.ref_name }}"
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Build portable EXE and MSI
+        run: pnpm package:release
+
+      - name: Generate SHA256 checksums
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path release -File | Where-Object { $_.Extension -in '.exe', '.msi' }
+          if ($files.Count -eq 0) {
+            throw 'No Windows release artifacts were produced.'
+          }
+          $files | ForEach-Object {
+            $hash = (Get-FileHash -Path $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)"
+          } | Set-Content -Path release/SHA256SUMS.txt -Encoding ascii
+          Get-ChildItem release -File | Select-Object Name, Length
+
+      - name: Create or update GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Z Bot ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
+          make_latest: ${{ steps.version.outputs.prerelease != 'true' }}
+          fail_on_unmatched_files: true
+          files: |
+            release/*-Portable.exe
+            release/*.msi
+            release/SHA256SUMS.txt
+
+      - name: Upload release artifacts for workflow inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: zbot-windows-${{ steps.version.outputs.version }}
+          path: |
+            release/*-Portable.exe
+            release/*.msi
+            release/SHA256SUMS.txt
+          retention-days: 14

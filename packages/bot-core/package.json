@@ -1,0 +1,18 @@
+{
+  "name": "@zbot/bot-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@zbot/database": "workspace:*",
+    "@zbot/memory": "workspace:*",
+    "@zbot/model": "workspace:*",
+    "@zbot/shared": "workspace:*",
+    "@zbot/tools": "workspace:*"
+  }
+}

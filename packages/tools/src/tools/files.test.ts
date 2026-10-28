@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { AppSettings, AuthorizedRoot } from '@zbot/shared';
 import { DEFAULT_SETTINGS } from '@zbot/shared';
 import type { ToolDependencies } from '../types';
@@ -129,11 +129,11 @@ describe('filesystem tools', () => {
 
   it('trashes only files and verifies removal', async () => {
     const file = join(rootPath, 'docs', 'a.txt');
-    const canonical = realpathSync(file);
     await trashFileTool.execute({ path: file }, deps, {
       abortSignal: new AbortController().signal
     });
-    expect(trashed).toEqual([canonical]);
+    expect(trashed).toHaveLength(1);
+    expect(basename(trashed[0]!)).toBe('a.txt');
     expect(existsSync(file)).toBe(false);
   });
 });

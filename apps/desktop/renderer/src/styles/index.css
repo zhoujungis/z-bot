@@ -203,7 +203,8 @@ button:disabled {
   background: color-mix(in oklch, var(--surface) 55%, transparent);
 }
 
-.btn {
+@layer components {
+:where(.btn) {
   display: inline-flex;
   min-height: 40px;
   align-items: center;
@@ -221,46 +222,46 @@ button:disabled {
     transform 150ms ease-out;
 }
 
-.btn:not(:disabled):active {
+:where(.btn):not(:disabled):active {
   transform: translateY(1px);
 }
 
-.btn-primary {
+:where(.btn-primary) {
   background: var(--accent);
   color: var(--accent-ink);
 }
 
-.btn-primary:not(:disabled):hover {
+:where(.btn-primary):not(:disabled):hover {
   background: var(--accent-hover);
 }
 
-.btn-secondary {
+:where(.btn-secondary) {
   border-color: var(--line);
   background: var(--surface-raised);
   color: var(--ink);
 }
 
-.btn-secondary:not(:disabled):hover {
+:where(.btn-secondary):not(:disabled):hover {
   border-color: var(--line-strong);
   background: var(--surface);
 }
 
-.btn-ghost {
+:where(.btn-ghost) {
   color: var(--muted-strong);
 }
 
-.btn-ghost:not(:disabled):hover {
+:where(.btn-ghost):not(:disabled):hover {
   background: var(--nav-hover);
   color: var(--ink);
 }
 
-.btn-danger {
+:where(.btn-danger) {
   border-color: color-mix(in oklch, var(--danger) 35%, var(--line));
   background: var(--danger-soft);
   color: var(--danger);
 }
 
-.field {
+:where(.field) {
   width: 100%;
   min-height: 42px;
   border: 1px solid var(--line);
@@ -271,18 +272,19 @@ button:disabled {
   font-size: 13px;
 }
 
-.field::placeholder {
+:where(.field)::placeholder {
   color: var(--muted-faint);
 }
 
-.field:hover {
+:where(.field):hover {
   border-color: var(--line-strong);
 }
 
-.field:focus {
+:where(.field):focus {
   border-color: var(--accent);
   outline: 2px solid color-mix(in oklch, var(--accent) 25%, transparent);
   outline-offset: 0;
+}
 }
 
 .label {

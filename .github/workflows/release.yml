@@ -41,21 +41,21 @@ jobs:
       CI: 'true'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 11.15.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
 
       - name: Cache Electron artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~\AppData\Local\electron\Cache
@@ -81,7 +81,7 @@ jobs:
 
       - name: Upload E2E diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-diagnostics
           path: |
@@ -103,25 +103,25 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - name: Checkout full history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: true
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 11.15.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
 
       - name: Cache Electron artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~\AppData\Local\electron\Cache
@@ -176,7 +176,7 @@ jobs:
           Get-ChildItem release -File | Select-Object Name, Length
 
       - name: Create or update GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: Z Bot ${{ steps.version.outputs.tag }}
@@ -190,7 +190,7 @@ jobs:
             release/SHA256SUMS.txt
 
       - name: Upload release artifacts for workflow inspection
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zbot-windows-${{ steps.version.outputs.version }}
           path: |

@@ -106,9 +106,15 @@ const prerelease = version.includes('-');
 
 if (!dryRun) {
   for (const filePath of [rootPackagePath, appPackagePath]) {
-    const pkg = readPackage(filePath);
-    pkg.version = version;
-    writeFileSync(filePath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
+    const raw = readFileSync(filePath, 'utf8');
+    if (!/"version"\s*:\s*"[^"]*"/.test(raw)) {
+      fail(`No version field found in ${filePath}`);
+    }
+    writeFileSync(
+      filePath,
+      raw.replace(/"version"\s*:\s*"[^"]*"/, `"version": "${version}"`),
+      'utf8'
+    );
   }
 }
 

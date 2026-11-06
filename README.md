@@ -686,3 +686,11 @@ Windows 需要安装 OCR 语言组件。检查 **Windows 设置 → 时间和语
 ## License
 
 当前仓库未包含 `LICENSE` 文件。在补充明确许可证之前，默认保留所有权利。如需开源发布，请先添加合适的许可证。
+
+<!-- blog-backlink -->
+---
+
+## 相关阅读
+
+- 博客：[尘世栈帧 — 技术、编程、AI 与科学](https://blog.zhoujun.dev/)
+- 项目详解：[Z Bot：本地优先的私人 AI 助理怎么搭](https://blog.zhoujun.dev/article/z-bot-local-first-ai-assistant/)
